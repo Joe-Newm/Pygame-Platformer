@@ -1,6 +1,6 @@
 # Example file showing a basic pygame "game loop"
 import pygame
-import player
+from player import *
 import sprites
 
 # pygame setup
@@ -14,7 +14,12 @@ running = True
 sprite_sheet_image = pygame.image.load("sprites/player/megaman-sprite1.png").convert_alpha()
 sprite_sheet = sprites.SpriteSheet(sprite_sheet_image)
 
-frame0 = sprite_sheet.get_image(23, 25, 4)
+
+player1 = Player(100,100, sprite_sheet, 5)
+
+# move variables
+moving_left = False
+moving_right = False
 
 while running:
     # poll for events
@@ -22,15 +27,24 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                moving_right = True
+            if event.key == pygame.K_LEFT:
+                moving_left = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT:
+                moving_right = False
+            if event.key == pygame.K_LEFT:
+                moving_left = False
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("red")
-
+    player1.get_input(moving_right, moving_left)
+    player1.draw(screen)
     # RENDER YOUR GAME HERE
-    screen.blit(frame0, (200,200))
-
     # flip() the display to put your work on screen
-    pygame.display.flip()
+    pygame.display.update()
 
     clock.tick(60)  # limits FPS to 60
 
