@@ -15,11 +15,12 @@ sprite_sheet_image = pygame.image.load("sprites/player/megaman-sprite1.png").con
 sprite_sheet = sprites.SpriteSheet(sprite_sheet_image)
 
 
-player1 = Player(100,100, sprite_sheet, 5)
+player1 = Player(600,500, sprite_sheet, 6)
 
 # move variables
 moving_left = False
 moving_right = False
+is_jumping = False           
 
 while running:
     # poll for events
@@ -32,15 +33,19 @@ while running:
                 moving_right = True
             if event.key == pygame.K_LEFT:
                 moving_left = True
+            if event.key == pygame.K_SPACE:
+                is_jumping = True
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
                 moving_right = False
             if event.key == pygame.K_LEFT:
                 moving_left = False
+            if event.key == pygame.K_SPACE:
+                is_jumping = False
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("red")
-    player1.get_input(moving_right, moving_left)
+    player1.get_input(moving_right, moving_left, is_jumping)
     player1.draw(screen)
     # RENDER YOUR GAME HERE
     # flip() the display to put your work on screen
