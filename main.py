@@ -2,6 +2,7 @@
 import pygame
 from player import *
 import sprites
+from player import Bullet
 
 # pygame setup
 pygame.init()
@@ -11,8 +12,14 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 # megaman sprite sheet load image
-sprite_sheet_image = pygame.image.load("sprites/player/megaman-sprite1.png").convert_alpha()
-sprite_sheet = sprites.SpriteSheet(sprite_sheet_image)
+sprite_sheet_image1 = pygame.image.load("sprites/player/megaman-sprite1.png").convert_alpha()
+sprite_sheet1 = sprites.SpriteSheet(sprite_sheet_image1)
+sprite_sheet_image2 = pygame.image.load("sprites/player/megaman-sprite2.png").convert_alpha()
+sprite_sheet2 = sprites.SpriteSheet(sprite_sheet_image2)
+# bullet png
+bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
+bullet_image = sprites.SpriteSheet(bullet_sheet)
+bullet_group = pygame.sprite.Group()
 
 # Initialize joysticks
 pygame.joystick.init()
@@ -26,12 +33,13 @@ for i in range(num_joysticks):
     print(f"Joystick {i}: {joystick.get_name()}")
 
 # player object
-player1 = Player(600,500, sprite_sheet, 6)
+player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 6)
 
 # move variables
 moving_left = False
 moving_right = False
 jump_check = False 
+shoot = False
 gravity = 0.75          
 
 while running:
@@ -55,6 +63,8 @@ while running:
                 moving_left = True
             if event.key == pygame.K_SPACE:
                 player1.jump = True
+            if event.key == pygame.K_x:
+                shoot = True
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
                 moving_right = False
@@ -62,6 +72,8 @@ while running:
                 moving_left = False
             if event.key == pygame.K_SPACE:
                 player1.jump = False
+            if event.key == pygame.K_x:
+                shoot = False
                 
         
         if event.type == pygame.JOYBUTTONDOWN:
@@ -96,9 +108,14 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((159, 238, 252))
     pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(moving_right, moving_left, gravity)
+    player1.get_input(moving_right, moving_left, gravity, shoot)
     player1.draw(screen)
-    # RENDER YOUR GAME HERE
+    # shoot
+    if shoot:
+        bullet = Bullet(player1.rect.centerx,player1.rect.centery,player1.direction, bullet_image)
+        bullet_group.add(bullet)
+    bullet_group.update()
+    bullet_group.draw(screen)
     # flip() the display to put your work on screen
     pygame.display.update()
 
