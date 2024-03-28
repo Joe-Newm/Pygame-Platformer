@@ -17,12 +17,13 @@ class Player(pygame.sprite.Sprite):
         self.flip = False
 
         self.animation_list = []
-        self.animation_steps = [3,3]
+        self.animation_steps = [3,4]
         self.last_update = pygame.time.get_ticks()
         self.animation_cooldown = 250
         self.frame = 0
         self.step_counter = 0
         self.action = 0
+        self.reverse_playback = False
 
         # grab animations for animation list
         for animation in self.animation_steps:
@@ -33,7 +34,7 @@ class Player(pygame.sprite.Sprite):
             
             self.animation_list.append(temp_img_list)
         # this is the frame for jumping
-        self.animation_list.append([self.image.get_image(5.8, 26, 31, 4)])
+        self.animation_list.append([self.image.get_image(6.6, 26, 31, 4)])
 
     def get_input(self, moving_right, moving_left, gravity):
         if self.alive:
@@ -81,7 +82,7 @@ class Player(pygame.sprite.Sprite):
         if self.action == 0 and self.frame == 1:
             self.animation_cooldown = 150
         if self.action == 1:
-            self.animation_cooldown = 125
+            self.animation_cooldown = 150
         if self.in_air:
             self.action = 2
 
@@ -100,6 +101,8 @@ class Player(pygame.sprite.Sprite):
         if self.action == 0:
             if self.frame == 2:
                 self.frame = 0
+
+    
         if self.frame >= len(self.animation_list[self.action]):
             self.frame = 0
         

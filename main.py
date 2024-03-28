@@ -18,6 +18,7 @@ sprite_sheet = sprites.SpriteSheet(sprite_sheet_image)
 pygame.joystick.init()
 num_joysticks = pygame.joystick.get_count()
 joysticks = []
+joystick_initialized = False
 for i in range(num_joysticks):
     joystick = pygame.joystick.Joystick(i)
     joystick.init()
@@ -39,6 +40,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.JOYDEVICEADDED and not joystick_initialized:
+            joystick_count = pygame.joystick.get_count()
+            if joystick_count > 0:
+                joystick = pygame.joystick.Joystick(0)
+                joystick.init()
+                joystick_initialized = True
+                print("Joystick initialized:", joystick.get_name())
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 moving_right = True
