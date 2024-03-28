@@ -30,7 +30,7 @@ player1 = Player(600,500, sprite_sheet, 6)
 # move variables
 moving_left = False
 moving_right = False
-is_jumping = False 
+jump_check = False 
 gravity = 0.75          
 
 while running:
@@ -53,6 +53,7 @@ while running:
                 moving_left = False
             if event.key == pygame.K_SPACE:
                 player1.jump = False
+                
         
         if event.type == pygame.JOYBUTTONDOWN:
             if event.button == 14:
@@ -61,6 +62,7 @@ while running:
                 moving_left = True
             if event.button == 1:
                 player1.jump = True
+                
         if event.type == pygame.JOYBUTTONUP:
             if event.button == 14:
                 moving_right = False
@@ -68,6 +70,7 @@ while running:
                 moving_left = False
             if event.button == 1:
                 player1.jump = False
+                
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((159, 238, 252))

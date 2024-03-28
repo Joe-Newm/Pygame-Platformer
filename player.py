@@ -5,6 +5,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, image, speed):
         super().__init__()
         self.jump = False
+        self.in_air = True
         self.alive = True
         self.image = image
         frame = self.image.get_image(0,24,24,3)
@@ -52,10 +53,11 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.action = 0
 
-            if self.jump == True:
+            if self.jump == True and self.in_air == False:
                 self.vel_y = -15
                 self.action = 2
                 self.jump = False
+                self.in_air = True
 
             #update gravity
             self.vel_y += gravity
@@ -66,8 +68,7 @@ class Player(pygame.sprite.Sprite):
             # check collision with floor
             if self.rect.bottom + dy > 578:
                 dy = 578 - self.rect.bottom
-            else:
-                self.action = 2
+                self.in_air = False
 
             # update position
             self.rect.x += dx
@@ -81,6 +82,9 @@ class Player(pygame.sprite.Sprite):
             self.animation_cooldown = 150
         if self.action == 1:
             self.animation_cooldown = 125
+        if self.in_air:
+            self.action = 2
+
 
         # animates based on which animation is in animation_list
         
