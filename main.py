@@ -25,7 +25,7 @@ for i in range(num_joysticks):
     joysticks.append(joystick)
     print(f"Joystick {i}: {joystick.get_name()}")
 
-
+# player object
 player1 = Player(600,500, sprite_sheet, 6)
 
 # move variables
@@ -65,13 +65,25 @@ while running:
                 
         
         if event.type == pygame.JOYBUTTONDOWN:
+            print("Button pressed:", event.button)
             if event.button == 14:
                 moving_right = True
             if event.button == 13:
                 moving_left = True
             if event.button == 1:
                 player1.jump = True
-                
+        # xbox controller
+        if event.type == pygame.JOYHATMOTION:
+            print("Button pressed:", event.value)
+            if event.value == (1,0):
+                moving_right = True
+            else:
+                moving_right = False
+            if event.value == (-1,0):
+                moving_left = True
+            else:
+                moving_left = False
+            
         if event.type == pygame.JOYBUTTONUP:
             if event.button == 14:
                 moving_right = False
