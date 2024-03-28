@@ -4,11 +4,14 @@ import sprites
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, image, speed):
         super().__init__()
+        self.jump = False
+        self.alive = True
         self.image = image
         frame = self.image.get_image(0,24,24,3)
         self.rect = frame.get_rect()
         self.rect.center = (x, y)
-        self.vel = speed
+        self.vel_x = speed
+        self.vel_y = 0
         self.direction = 1
         self.flip = False
 
@@ -29,25 +32,46 @@ class Player(pygame.sprite.Sprite):
             
             self.animation_list.append(temp_img_list)
         # this is the frame for jumping
-        self.animation_list.append([self.image.get_image(5.8, 26, 30, 4)])
+        self.animation_list.append([self.image.get_image(5.8, 26, 31, 4)])
 
-    def get_input(self, moving_right, moving_left, jump):
-        if moving_right:
-            self.rect.x += self.vel
-            self.flip = False
-            self.direction = 1
-            self.action = 1
-        elif moving_left:
-            self.rect.x -= self.vel
-            self.flip = True
-            self.direction = -1
-            self.action = 1
-        else:
-            self.action = 0
+    def get_input(self, moving_right, moving_left, gravity):
+        if self.alive:
+            dx = 0
+            dy = 0
 
-        if jump:
-            self.rect.y -= 6
-            self.action = 2
+            if moving_right:
+                dx = self.vel_x
+                self.flip = False
+                self.direction = 1
+                self.action = 1
+            elif moving_left:
+                dx = -self.vel_x
+                self.flip = True
+                self.direction = -1
+                self.action = 1
+            else:
+                self.action = 0
+
+            if self.jump == True:
+                self.vel_y = -15
+                self.action = 2
+                self.jump = False
+
+            #update gravity
+            self.vel_y += gravity
+            if self.vel_y > 15:
+                self.vel_y
+            dy += self.vel_y
+
+            # check collision with floor
+            if self.rect.bottom + dy > 578:
+                dy = 578 - self.rect.bottom
+            else:
+                self.action = 2
+
+            # update position
+            self.rect.x += dx
+            self.rect.y += dy
 
     def animations(self):
         #chooses cooldown for each animation
