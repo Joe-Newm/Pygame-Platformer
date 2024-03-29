@@ -16,6 +16,14 @@ sprite_sheet_image1 = pygame.image.load("sprites/player/megaman-sprite1.png").co
 sprite_sheet1 = sprites.SpriteSheet(sprite_sheet_image1)
 sprite_sheet_image2 = pygame.image.load("sprites/player/megaman-sprite2.png").convert_alpha()
 sprite_sheet2 = sprites.SpriteSheet(sprite_sheet_image2)
+# enemy sprite sheet and load image
+enemy_sheet_image1 = pygame.image.load("sprites/enemy/enemy-sprite1.png").convert_alpha()
+enemy_sheet1 = sprites.SpriteSheet(enemy_sheet_image1)
+# grass map tile png
+grass_sheet = pygame.image.load("sprites/map/grass.png").convert_alpha()
+grass_object = sprites.SpriteSheet(grass_sheet)
+grass_image = grass_object.get_image((0,0),0,25,25,5)
+
 # bullet png
 bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
 bullet_image = sprites.SpriteSheet(bullet_sheet)
@@ -34,6 +42,7 @@ for i in range(num_joysticks):
 
 # player object
 player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 6)
+enemy1 = Player(1000, 100, enemy_sheet1, sprite_sheet2, 6)
 
 # move variables
 look_up = False
@@ -83,11 +92,11 @@ while running:
         # xbox controller
         if event.type == pygame.JOYHATMOTION:
             print("Button pressed:", event.value)
-            if event.value == (1,0):
+            if event.value == (1,0) or event.value == (1,1):
                 moving_right = True
             else:
                 moving_right = False
-            if event.value == (-1,0):
+            if event.value == (-1,0) or event.value == (-1,1):
                 moving_left = True
             else:
                 moving_left = False
@@ -124,9 +133,16 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((159, 238, 252))
-    pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
+    # pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
     player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
-    player1.draw(screen)
+    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+    enemy1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+
+    # draw some grass
+    sep = 0
+    for square in range(0, 11):
+        screen.blit(grass_image, (sep,600))
+        sep+=125
 
     # shoot
     

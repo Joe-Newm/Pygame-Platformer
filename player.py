@@ -49,13 +49,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame]
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
-        height_diff = self.animation_list[6][0].get_rect().height - self.animation_list[0][0].get_rect().height
-
-        # Apply the adjustment for image2 (shoot up animation)
-        self.rect = self.image.get_rect()
-        self.rect.bottom = y + height_diff + 300
-
-
+        
     def get_input(self,look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
         if self.alive:
             dx = 0
@@ -94,23 +88,11 @@ class Player(pygame.sprite.Sprite):
                 self.action = 2
                 if shoot:
                     self.action = 5
-                
-            #update gravity
-            self.vel_y += gravity
-            if self.vel_y > 15:
-                self.vel_y
-            dy += self.vel_y
-
-            # check collision with floor
-            if self.rect.bottom + dy > 620:
-                if shoot == False and moving_right == False and moving_left == False and look_up == False:
-                    self.action = 0
-                dy = 620 - self.rect.bottom
-                self.in_air = False
-
             # update position
             self.rect.x += dx
             self.rect.y += dy
+                
+            
 
     def shoot(self, bullet_group, bullet_image, look_up,moving_right, moving_left):
         if self.shoot_cooldown == 0:
@@ -160,11 +142,30 @@ class Player(pygame.sprite.Sprite):
             self.frame = 0
         
             
-    def draw(self, display):
+    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up):
         self.animations()
         display.blit(pygame.transform.flip(self.animation_list[self.action][self.frame], self.flip, False), self.rect)
         # display.blit(self.animation_list[3][0],self.rect)
-    
+
+        #update gravity
+        dx = 0
+        dy = 0
+        self.vel_y += gravity
+        if self.vel_y > 15:
+            self.vel_y
+        dy += self.vel_y
+
+        # check collision with floor
+        if self.rect.bottom + dy > 620:
+            if shoot == False and moving_right == False and moving_left == False and look_up == False:
+                self.action = 0
+            dy = 620 - self.rect.bottom
+            self.in_air = False
+
+        # update position
+        self.rect.x += dx
+        self.rect.y += dy
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction, image, look_up):
         super().__init__()
