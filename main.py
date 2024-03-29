@@ -1,11 +1,16 @@
 # Example file showing a basic pygame "game loop"
 import pygame
+from pygame import mixer
 from player import *
 import sprites
 from player import Bullet
 
 # pygame setup
 pygame.init()
+mixer.init()
+mixer.music.load("sound/02-title.mp3")
+mixer.music.set_volume(0.4)
+mixer.music.play(-1)
 screen_width = 1280
 screen_height = int(screen_width * 0.8)
 screen = pygame.display.set_mode((1280, 720))
