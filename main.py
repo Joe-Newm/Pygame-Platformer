@@ -75,15 +75,6 @@ while running:
             if event.key == pygame.K_x:
                 shoot = False
                 
-        
-        if event.type == pygame.JOYBUTTONDOWN:
-            print("Button pressed:", event.button)
-            if event.button == 14:
-                moving_right = True
-            if event.button == 13:
-                moving_left = True
-            if event.button == 1:
-                player1.jump = True
         # xbox controller
         if event.type == pygame.JOYHATMOTION:
             print("Button pressed:", event.value)
@@ -95,6 +86,17 @@ while running:
                 moving_left = True
             else:
                 moving_left = False
+
+        if event.type == pygame.JOYBUTTONDOWN:
+            print("Button pressed:", event.button)
+            if event.button == 14:
+                moving_right = True
+            if event.button == 13:
+                moving_left = True
+            if event.button == 1:
+                player1.jump = True
+            if event.button == 0:
+                shoot = True
             
         if event.type == pygame.JOYBUTTONUP:
             if event.button == 14:
@@ -103,19 +105,21 @@ while running:
                 moving_left = False
             if event.button == 1:
                 player1.jump = False
+            if event.button == 0:
+                shoot = False
                 
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((159, 238, 252))
     pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(moving_right, moving_left, gravity, shoot)
+    player1.get_input(moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
     player1.draw(screen)
+
     # shoot
-    if shoot:
-        bullet = Bullet(player1.rect.centerx,player1.rect.centery,player1.direction, bullet_image)
-        bullet_group.add(bullet)
+    
     bullet_group.update()
     bullet_group.draw(screen)
+
     # flip() the display to put your work on screen
     pygame.display.update()
 
