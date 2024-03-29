@@ -137,11 +137,11 @@ while running:
                 
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill((159, 238, 252))
+    screen.fill((112, 217, 255))
     # pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
     player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
-    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
     enemy1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
 
     # draw some grass
     sep = 0
