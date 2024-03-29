@@ -6,9 +6,9 @@ class SpriteSheet():
 
 # image function for frames
 
-    def get_image(self, frame, width, height, scale):
+    def get_image(self,y, frame, width, height, scale):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
-        image.blit(self.sheet, (0,0), (frame*width,0, width, height))
+        image.blit(self.sheet, y, (frame*width,0, width, height))
         image = pygame.transform.scale(image, (width * scale, height * scale))
         return image
 

@@ -36,6 +36,7 @@ for i in range(num_joysticks):
 player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 6)
 
 # move variables
+look_up = False
 moving_left = False
 moving_right = False
 jump_check = False 
@@ -57,6 +58,8 @@ while running:
                 print("Joystick initialized:", joystick.get_name())
 
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                look_up = True
             if event.key == pygame.K_RIGHT:
                 moving_right = True
             if event.key == pygame.K_LEFT:
@@ -66,6 +69,8 @@ while running:
             if event.key == pygame.K_x:
                 shoot = True
         if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
+                look_up = False
             if event.key == pygame.K_RIGHT:
                 moving_right = False
             if event.key == pygame.K_LEFT:
@@ -86,6 +91,10 @@ while running:
                 moving_left = True
             else:
                 moving_left = False
+            if event.value == (0,1):
+                look_up = True
+            else:
+                look_up = False
 
         if event.type == pygame.JOYBUTTONDOWN:
             print("Button pressed:", event.button)
@@ -97,6 +106,8 @@ while running:
                 player1.jump = True
             if event.button == 0:
                 shoot = True
+            if event.button == 11:
+                look_up = True
             
         if event.type == pygame.JOYBUTTONUP:
             if event.button == 14:
@@ -107,12 +118,14 @@ while running:
                 player1.jump = False
             if event.button == 0:
                 shoot = False
+            if event.button == 11:
+                look_up = False
                 
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((159, 238, 252))
     pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
+    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
     player1.draw(screen)
 
     # shoot

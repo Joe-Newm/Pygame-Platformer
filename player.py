@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
 
         self.animation_list = []
         self.animation_steps1 = [2,4,1]
-        self.animation_steps2 = [3,1,1]
+        self.animation_steps2 = [3,1]
         self.last_update = pygame.time.get_ticks()
         self.animation_cooldown = 250
         self.frame = 0
@@ -31,30 +31,44 @@ class Player(pygame.sprite.Sprite):
         for animation in self.animation_steps1:
             temp_img_list = []
             for _ in range(animation):
-                temp_img_list.append(self.image1.get_image(self.step_counter, 31, 32, 4))
+                temp_img_list.append(self.image1.get_image((0,0),self.step_counter, 31, 35, 4))
                 self.step_counter += 1
             self.animation_list.append(temp_img_list)
         self.step_counter = 0
         for animation in self.animation_steps2:
             temp_img_list = []
             for _ in range(animation):
-                temp_img_list.append(self.image2.get_image(self.step_counter, 31, 32, 4))
+                temp_img_list.append(self.image2.get_image((0,0),self.step_counter, 31, 35, 4))
                 self.step_counter += 1
             self.animation_list.append(temp_img_list)
+        
+        #shoot up animation
+        self.animation_list.append([self.image2.get_image((0,0), 4, 31,33,4)])
+        self.animation_list.append([self.image2.get_image((0,0), 5, 31,34,4)])
 
         self.image = self.animation_list[self.action][self.frame]
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.midbottom = (x, y)
+        height_diff = self.animation_list[6][0].get_rect().height - self.animation_list[0][0].get_rect().height
+
+        # Apply the adjustment for image2 (shoot up animation)
+        self.rect = self.image.get_rect()
+        self.rect.bottom = y + height_diff + 300
 
 
-    def get_input(self, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
+    def get_input(self,look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
         if self.alive:
             dx = 0
             dy = 0
 
-            if shoot:
+            if look_up and shoot:
+                self.action = 6
+                self.shoot(bullet_group, bullet_image, look_up, moving_right,moving_left)
+            elif look_up:
+                self.action = 6
+            elif shoot:
                 self.action = 4
-                self.shoot(bullet_group, bullet_image)
+                self.shoot(bullet_group, bullet_image, look_up,moving_right,moving_left)
             if moving_right:
                 dx = self.vel_x
                 self.flip = False
@@ -88,23 +102,29 @@ class Player(pygame.sprite.Sprite):
             dy += self.vel_y
 
             # check collision with floor
-            if self.rect.bottom + dy > 632:
-                if shoot == False and moving_right == False and moving_left == False:
+            if self.rect.bottom + dy > 620:
+                if shoot == False and moving_right == False and moving_left == False and look_up == False:
                     self.action = 0
-                dy = 632 - self.rect.bottom
+                dy = 620 - self.rect.bottom
                 self.in_air = False
 
             # update position
             self.rect.x += dx
             self.rect.y += dy
 
-    def shoot(self, bullet_group, bullet_image):
+    def shoot(self, bullet_group, bullet_image, look_up,moving_right, moving_left):
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = 13  
-            if self.direction == 1:
-                bullet = Bullet(self.rect.right,self.rect.centery -20,self.direction, bullet_image)
+            if look_up and self.direction == 1 and not moving_right:
+                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -40, self.direction, bullet_image, True)
+            elif look_up and self.direction == -1 and not moving_left:
+                bullet = Bullet(self.rect.centerx -15, self.rect.centery -40, self.direction, bullet_image, True)
+
+            elif self.direction == 1:
+                bullet = Bullet(self.rect.right,self.rect.centery -5,self.direction, bullet_image, False)
             else:
-                bullet = Bullet(self.rect.left,self.rect.centery -20,self.direction, bullet_image)
+                bullet = Bullet(self.rect.left,self.rect.centery -5,self.direction, bullet_image, False)
+            
             bullet_group.add(bullet)
 
     def animations(self):
@@ -146,18 +166,27 @@ class Player(pygame.sprite.Sprite):
         # display.blit(self.animation_list[3][0],self.rect)
     
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, direction, image):
+    def __init__(self, x, y, direction, image, look_up):
         super().__init__()
         self.speed = 15
-        self.image = image.get_image(0,10,10,3)
+        self.image = image.get_image((0,0),0,10,10,3)
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
         self.direction = direction
+        if look_up:
+            self.up = True
+            self.image = pygame.transform.rotate(self.image, 90)
+        else:
+            self.up = False
 
     def update(self):
+        if self.up:
+            self.rect.centery -= self.speed
+        else:
             self.rect.centerx += (self.direction)*self.speed
-
-            #check if bullets have left screen
-            if self.rect.right < 0 or self.rect.left > 1280:
-                self.kill()
+        #check if bullets have left screen
+        if self.rect.right < 0 or self.rect.left > 1280:
+            self.kill()
+        if self.rect.bottom < 0 or self.rect.top > 1280:
+            self.kill()
 
