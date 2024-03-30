@@ -46,7 +46,7 @@ for i in range(num_joysticks):
     print(f"Joystick {i}: {joystick.get_name()}")
 
 # player object
-player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 6)
+player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 7)
 enemy1 = Player(1000, 100, enemy_sheet1, sprite_sheet2, 6)
 
 # move variables
