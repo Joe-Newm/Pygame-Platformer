@@ -151,7 +151,7 @@ while running:
 
     # shoot
     
-    bullet_group.update()
+    bullet_group.update(player1,enemy1, bullet_group)
     bullet_group.draw(screen)
 
     # flip() the display to put your work on screen

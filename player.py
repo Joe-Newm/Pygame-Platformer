@@ -4,6 +4,8 @@ import sprites
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, image1, image2, speed):
         super().__init__()
+        self.health = 100
+        self.max_health = self.health
         self.jump = False
         self.in_air = True
         self.alive = True
@@ -140,6 +142,12 @@ class Player(pygame.sprite.Sprite):
         
         if self.frame >= len(self.animation_list[self.action]):
             self.frame = 0
+
+    def check_alive(self):
+        if self.health <= 0:
+            self.health = 0
+            self.speed = 0
+            self.alive = False
         
             
     def draw(self, display, gravity, shoot, moving_right, moving_left, look_up):
@@ -180,7 +188,7 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.up = False
 
-    def update(self):
+    def update(self, player1, enemy1,bullet_group):
         if self.up:
             self.rect.centery -= self.speed
         else:
@@ -191,3 +199,14 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0 or self.rect.top > 1280:
             self.kill()
 
+        #check collision with characters
+        if pygame.sprite.spritecollide(player1,bullet_group, False):
+            if player1.alive:
+                player1.health -= 5
+                self.kill()
+
+        if pygame.sprite.spritecollide(enemy1, bullet_group, False):
+            if enemy1.alive:
+                enemy1.health -= 25
+                print(enemy1.health)
+                self.kill()
