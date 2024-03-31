@@ -2,7 +2,7 @@ import pygame
 import sprites
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, image1, image2, speed):
+    def __init__(self, pos, image1, image2, speed):
         super().__init__()
         self.health = 100
         self.max_health = self.health
@@ -17,6 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = 1
         self.flip = False
         self.flip_adj = False
+        self.pos = pos
 
         self.animation_list = []
         self.animation_steps1 = [2,4,1]
@@ -48,9 +49,16 @@ class Player(pygame.sprite.Sprite):
         self.animation_list.append([self.image2.get_image((0,0), 4, 31,33,4)])
         self.animation_list.append([self.image2.get_image((0,0), 5, 31,34,4)])
 
+        #pos = screen.get_rect().center
         self.image = self.animation_list[self.action][self.frame]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (x, y)
+        self.mask = pygame.mask.from_surface(self.image)
+        
+        
+        
+
+        self.rect.midbottom = pos
+    
         
     def get_input(self,look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
         if self.alive:
@@ -100,14 +108,14 @@ class Player(pygame.sprite.Sprite):
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = 13  
             if look_up and self.direction == 1 and not moving_right:
-                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -40, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -60, self.direction, bullet_image, True)
             elif look_up and self.direction == -1 and not moving_left:
-                bullet = Bullet(self.rect.centerx -15, self.rect.centery -40, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx -15, self.rect.centery -60, self.direction, bullet_image, True)
 
             elif self.direction == 1:
-                bullet = Bullet(self.rect.right,self.rect.centery -5,self.direction, bullet_image, False)
+                bullet = Bullet(self.rect.right,self.rect.centery,self.direction, bullet_image, False)
             else:
-                bullet = Bullet(self.rect.left,self.rect.centery -5,self.direction, bullet_image, False)
+                bullet = Bullet(self.rect.left,self.rect.centery,self.direction, bullet_image, False)
             
             bullet_group.add(bullet)
 
@@ -148,6 +156,7 @@ class Player(pygame.sprite.Sprite):
             self.health = 0
             self.speed = 0
             self.alive = False
+            self.kill()
         
             
     def draw(self, display, gravity, shoot, moving_right, moving_left, look_up):
@@ -174,6 +183,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
+        #check alive
+        self.check_alive()
+        
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction, image, look_up):
         super().__init__()
@@ -181,14 +194,17 @@ class Bullet(pygame.sprite.Sprite):
         self.image = image.get_image((0,0),0,10,10,3)
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.mask_image = self.mask.to_surface()
         self.direction = direction
+
         if look_up:
             self.up = True
             self.image = pygame.transform.rotate(self.image, 90)
         else:
             self.up = False
 
-    def update(self, player1, enemy1,bullet_group):
+    def update(self, player1, enemy1,bullet_group, screen):
         if self.up:
             self.rect.centery -= self.speed
         else:
@@ -200,13 +216,20 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
         #check collision with characters
+        pygame.draw.rect(screen, "green", player1.rect, 1 )
+        pygame.draw.rect(screen, "green", enemy1.rect, 1 )
         if pygame.sprite.spritecollide(player1,bullet_group, False):
-            if player1.alive:
-                player1.health -= 5
-                self.kill()
+            pygame.draw.rect(screen, "red", player1.rect, 1)
+            if pygame.sprite.spritecollide(player1,bullet_group, False, pygame.sprite.collide_mask):
+                if player1.alive:
 
-        if pygame.sprite.spritecollide(enemy1, bullet_group, False):
-            if enemy1.alive:
-                enemy1.health -= 25
-                print(enemy1.health)
-                self.kill()
+                    player1.health -= 5
+                    self.kill()
+
+        if pygame.sprite.spritecollide(enemy1,bullet_group, False):
+            if pygame.sprite.spritecollide(enemy1, bullet_group, False, pygame.sprite.collide_mask):
+                pygame.draw.rect(screen, "red", enemy1.rect, 1 )
+                if enemy1.alive:
+                    enemy1.health -= 25
+                    print(enemy1.health)
+                    self.kill()

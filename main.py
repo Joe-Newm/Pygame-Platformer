@@ -27,7 +27,7 @@ enemy_sheet1 = sprites.SpriteSheet(enemy_sheet_image1)
 # grass map tile png
 grass_sheet = pygame.image.load("sprites/map/grass.png").convert_alpha()
 grass_object = sprites.SpriteSheet(grass_sheet)
-grass_image = grass_object.get_image((0,0),0,25,25,5)
+grass_image = grass_object.get_image((0,0),0,25,25,4)
 
 # bullet png
 bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
@@ -46,8 +46,8 @@ for i in range(num_joysticks):
     print(f"Joystick {i}: {joystick.get_name()}")
 
 # player object
-player1 = Player(600,500, sprite_sheet1, sprite_sheet2, 7)
-enemy1 = Player(1000, 100, enemy_sheet1, sprite_sheet2, 6)
+player1 = Player((600,500), sprite_sheet1, sprite_sheet2, 7)
+enemy1 = Player((1000, 100), enemy_sheet1, sprite_sheet2, 6)
 
 # move variables
 look_up = False
@@ -138,21 +138,22 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((112, 217, 255))
-    # pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
+    #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
     player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
     enemy1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
     player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
 
     # draw some grass
     sep = 0
-    for square in range(0, 11):
+    for square in range(0, 13):
         screen.blit(grass_image, (sep,600))
-        sep+=125
+        sep+=100
 
     # shoot
     
-    bullet_group.update(player1,enemy1, bullet_group)
+    bullet_group.update(player1,enemy1, bullet_group, screen)
     bullet_group.draw(screen)
+    
 
     # flip() the display to put your work on screen
     pygame.display.update()
