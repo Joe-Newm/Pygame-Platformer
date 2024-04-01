@@ -149,7 +149,7 @@ while running:
     screen.fill((112, 217, 255))
     # draw some grass
     sep = 0
-    for square in range(0, 13):
+    for square in range(0, 200):
         screen.blit(grass_image, (sep,600))
         sep+=120
     #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)

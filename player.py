@@ -61,6 +61,8 @@ class Player(pygame.sprite.Sprite):
         self.animation_list.append([self.image2.get_image((0,0), 4.5, 35,34,4)])
         #death animation
         self.animation_list.append([self.image2.get_image((0,0), 6.2, 31,34,4)])
+        #jump shoot up animation
+        self.animation_list.append([self.image2.get_image((0,0), 7.1, 31, 34,4)])
 
         #object rect
         self.image = self.animation_list[self.action][self.frame]
@@ -76,6 +78,8 @@ class Player(pygame.sprite.Sprite):
             if look_up and shoot:
                 self.action = 5
                 self.shoot(bullet_group, bullet_image, look_up, moving_right,moving_left)
+            elif self.in_air and shoot and moving_left:
+                self.action = 4
             elif look_up:
                 self.action = 5
             elif shoot:
@@ -103,9 +107,17 @@ class Player(pygame.sprite.Sprite):
                 self.jump = False
                 self.in_air = True
             if self.in_air:
-                self.action = 2
-                if shoot:
+                if shoot and moving_left:
                     self.action = 4
+                elif shoot and moving_right:
+                    self.action = 4
+                elif look_up and shoot:
+                    self.action = 8
+                elif shoot:
+                    self.action = 4
+                else:
+                    self.action = 2
+                
             # update position
             self.rect.x += dx
             self.rect.y += dy
@@ -116,14 +128,14 @@ class Player(pygame.sprite.Sprite):
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = 13  
             if look_up and self.direction == 1 and not moving_right:
-                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -70, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx + 14, self.rect.centery -60, self.direction, bullet_image, True)
             elif look_up and self.direction == -1 and not moving_left:
-                bullet = Bullet(self.rect.centerx -15, self.rect.centery -70, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx -14, self.rect.centery -60, self.direction, bullet_image, True)
 
             elif self.direction == 1:
-                bullet = Bullet(self.rect.right +25,self.rect.centery,self.direction, bullet_image, False)
+                bullet = Bullet(self.rect.right +15,self.rect.centery -2,self.direction, bullet_image, False)
             else:
-                bullet = Bullet(self.rect.left - 10,self.rect.centery,self.direction, bullet_image, False)
+                bullet = Bullet(self.rect.left,self.rect.centery -2,self.direction, bullet_image, False)
             
             player_bullet_group.add(bullet)
 
