@@ -36,6 +36,7 @@ grass_image = grass_object.get_image((0,0),0,30,30,4)
 bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
 bullet_image = sprites.SpriteSheet(bullet_sheet)
 bullet_group = pygame.sprite.Group()
+player_bullet_group = pygame.sprite.Group()
 
 # Initialize joysticks
 pygame.joystick.init()
@@ -152,7 +153,7 @@ while running:
         screen.blit(grass_image, (sep,600))
         sep+=120
     #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
+    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, player_bullet_group, bullet_image)
     for enemy in enemy_group:
         enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
         enemy.ai(screen, shoot, player1, bullet_group, bullet_image)
@@ -162,8 +163,12 @@ while running:
 
     # shoot
     
-    bullet_group.update(player1,enemy1, bullet_group, screen)
+    bullet_group.update(player1,enemy1,player_bullet_group, bullet_group, screen)
     bullet_group.draw(screen)
+    player_bullet_group.update(player1,enemy1,player_bullet_group, bullet_group, screen)
+    player_bullet_group.draw(screen)
+
+
     
 
     # flip() the display to put your work on screen

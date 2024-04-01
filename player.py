@@ -112,20 +112,20 @@ class Player(pygame.sprite.Sprite):
                 
             
 
-    def shoot(self, bullet_group, bullet_image, look_up,moving_right, moving_left):
+    def shoot(self, player_bullet_group, bullet_image, look_up,moving_right, moving_left):
         if self.shoot_cooldown == 0:
             self.shoot_cooldown = 13  
             if look_up and self.direction == 1 and not moving_right:
-                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -85, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx + 15, self.rect.centery -70, self.direction, bullet_image, True)
             elif look_up and self.direction == -1 and not moving_left:
-                bullet = Bullet(self.rect.centerx -20, self.rect.centery -85, self.direction, bullet_image, True)
+                bullet = Bullet(self.rect.centerx -15, self.rect.centery -70, self.direction, bullet_image, True)
 
             elif self.direction == 1:
                 bullet = Bullet(self.rect.right +25,self.rect.centery,self.direction, bullet_image, False)
             else:
                 bullet = Bullet(self.rect.left - 10,self.rect.centery,self.direction, bullet_image, False)
             
-            bullet_group.add(bullet)
+            player_bullet_group.add(bullet)
 
     def animations(self):
         #chooses cooldown for each animation
@@ -247,7 +247,7 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.up = False
 
-    def update(self, player1, enemy1,bullet_group, screen):
+    def update(self, player1, enemy1,player_bullet_group, bullet_group, screen):
         if self.up:
             self.rect.centery -= self.speed
         else:
@@ -262,11 +262,11 @@ class Bullet(pygame.sprite.Sprite):
         #check collision with characters
         if pygame.sprite.spritecollide(player1,bullet_group, False):
             #pygame.draw.rect(screen, "red", player1.rect, 1)
-            if pygame.sprite.spritecollide(player1,bullet_group, False, pygame.sprite.collide_mask):
+            if pygame.sprite.spritecollide(player1,bullet_group, True, pygame.sprite.collide_mask):
                 if player1.alive:
                     player1.health -= 5
                     print(player1.health)
-                    self.kill()
+                    
 
                     flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
                     new_rect = flashing_surface.get_rect()
@@ -285,8 +285,8 @@ class Bullet(pygame.sprite.Sprite):
                     
                     
 
-        if pygame.sprite.spritecollide(enemy1,bullet_group, False):
-            if pygame.sprite.spritecollide(enemy1, bullet_group, False, pygame.sprite.collide_mask):
+        if pygame.sprite.spritecollide(enemy1,player_bullet_group, False):
+            if pygame.sprite.spritecollide(enemy1, player_bullet_group, False, pygame.sprite.collide_mask):
                 # Iterate over each pixel of the image for flash effect
                 if enemy1.alive:
                     enemy1.health -= 15
