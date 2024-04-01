@@ -3,8 +3,9 @@ import sprites
 import random
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, image1, image2, speed):
+    def __init__(self,char_type, pos, image1, image2, speed):
         super().__init__()
+        self.char_type = char_type
         self.health = 100
         self.max_health = self.health
         self.jump = False
@@ -19,12 +20,17 @@ class Player(pygame.sprite.Sprite):
         self.flip = False
         self.flip_adj = False
         self.pos = pos
-        
+
         # ai variables
         self.vision = pygame.Rect(0,0,800,20)
         self.move_counter = 0
         self.idling = False
         self.idling_counter = 0
+
+        #scroll variables
+        self.scroll_thresh = 200
+        self.screen_scroll = 0
+        self.bg_scroll = 0
 
         #sprite animation variables
         self.animation_list = []
@@ -71,6 +77,9 @@ class Player(pygame.sprite.Sprite):
     
         
     def get_input(self,look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
+        screen_width = 1280
+        screen_height = int(screen_width * 0.8)
+        screen_scroll = 0
         if self.alive:
             dx = 0
             dy = 0
@@ -121,6 +130,14 @@ class Player(pygame.sprite.Sprite):
             # update position
             self.rect.x += dx
             self.rect.y += dy
+
+            # update scroll based on player position
+            if self.char_type == "player":
+                if self.rect.right > screen_width - self.scroll_thresh or self.rect.left < self.scroll_thresh:
+                    self.rect.x -= dx
+                    self.screen_scroll = -dx
+            
+                
                 
             
 
