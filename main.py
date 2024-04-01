@@ -24,10 +24,13 @@ sprite_sheet2 = sprites.SpriteSheet(sprite_sheet_image2)
 # enemy sprite sheet and load image
 enemy_sheet_image1 = pygame.image.load("sprites/enemy/enemy-sprite1.png").convert_alpha()
 enemy_sheet1 = sprites.SpriteSheet(enemy_sheet_image1)
+enemy_sheet_image2 = pygame.image.load("sprites/enemy/enemy-sprite2.png").convert_alpha()
+enemy_sheet2 = sprites.SpriteSheet(enemy_sheet_image2)
+
 # grass map tile png
 grass_sheet = pygame.image.load("sprites/map/grass.png").convert_alpha()
 grass_object = sprites.SpriteSheet(grass_sheet)
-grass_image = grass_object.get_image((0,0),0,25,25,4)
+grass_image = grass_object.get_image((0,0),0,30,30,4)
 
 # bullet png
 bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
@@ -46,8 +49,11 @@ for i in range(num_joysticks):
     print(f"Joystick {i}: {joystick.get_name()}")
 
 # player object
-player1 = Player((600,500), sprite_sheet1, sprite_sheet2, 7)
-enemy1 = Player((1000, 100), enemy_sheet1, sprite_sheet2, 6)
+player1 = Player((50,100), sprite_sheet1, sprite_sheet2, 7)
+enemy1 = Player((1000, 600), enemy_sheet1, enemy_sheet2, 4)
+
+enemy_group = pygame.sprite.Group()
+enemy_group.add(enemy1)
 
 # move variables
 look_up = False
@@ -56,6 +62,8 @@ moving_right = False
 jump_check = False 
 shoot = False
 gravity = 0.75          
+
+flashing_surface = enemy1.image.copy()
 
 while running:
     # poll for events
@@ -138,16 +146,19 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((112, 217, 255))
-    #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
-    enemy1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
-    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
-
     # draw some grass
     sep = 0
     for square in range(0, 13):
         screen.blit(grass_image, (sep,600))
-        sep+=100
+        sep+=120
+    #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
+    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image)
+    for enemy in enemy_group:
+        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+        enemy.ai(screen, shoot, player1, bullet_group, bullet_image)
+
+    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+
 
     # shoot
     
