@@ -234,7 +234,7 @@ class Player(pygame.sprite.Sprite):
                 if self.idling_counter <= 0:
                     self.idling = False
             
-    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up,screen_scroll):
+    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up,screen_scroll, player1):
         self.animations()
         display.blit(pygame.transform.flip(self.animation_list[self.action][self.frame], self.flip, False), self.rect)
 
@@ -259,7 +259,7 @@ class Player(pygame.sprite.Sprite):
 
         #check alive
         self.check_alive()
-        if self.char_type == "enemy":
+        if self.char_type == "enemy" and player1.alive:
             self.rect.x += screen_scroll
         
 

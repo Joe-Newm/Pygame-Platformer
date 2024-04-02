@@ -39,8 +39,9 @@ class World():
                         
         return player1, enemy_group
     
-    def draw(self,screen, screen_scroll):
+    def draw(self,screen, screen_scroll, player1):
         for tile in self.obastabcle_list:
-            tile[1][0] += screen_scroll
+            if player1.alive:
+                tile[1][0] += screen_scroll
             screen.blit(tile[0], tile[1])
 

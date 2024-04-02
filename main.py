@@ -158,12 +158,12 @@ while running:
     screen_scroll = player1.get_input(look_up, moving_right, moving_left, gravity, shoot, player_bullet_group, bullet_image)
 
     #draw world
-    world.draw(screen, screen_scroll)
+    world.draw(screen, screen_scroll, player1)
 
-    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up, screen_scroll)
+    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up, screen_scroll,player1)
     #add enemy to group
     for enemy in enemy_group:
-        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up,screen_scroll)
+        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up,screen_scroll, player1)
         enemy.ai(screen, shoot, player1, bullet_group, bullet_image)
     bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
     player_bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
