@@ -14,7 +14,7 @@ mixer.music.set_volume(0.4)
 mixer.music.play(-1)
 screen_width = 1280
 screen_height = int(screen_width * 0.8)
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 running = True
 
@@ -111,7 +111,7 @@ while running:
                 
         # xbox controller
         if event.type == pygame.JOYHATMOTION:
-            print("Button pressed:", event.value)
+            #print("Button pressed:", event.value)
             if event.value == (1,0) or event.value == (1,1):
                 moving_right = True
             else:
@@ -126,7 +126,7 @@ while running:
                 look_up = False
 
         if event.type == pygame.JOYBUTTONDOWN:
-            print("Button pressed:", event.button)
+            #print("Button pressed:", event.button)
             if event.button == 14:
                 moving_right = True
             if event.button == 13:

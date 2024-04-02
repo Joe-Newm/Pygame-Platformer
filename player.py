@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,char_type, pos, image1, image2, speed):
         super().__init__()
         self.char_type = char_type
-        self.health = 10000
+        self.health = 100
         self.max_health = self.health
         self.jump = False
         self.in_air = True
@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         #death animation
         self.animation_list.append([self.image2.get_image((0,0), 6.2, 31,34,4)])
         #jump shoot up animation
-        self.animation_list.append([self.image2.get_image((0,0), 7.1, 31, 34,4)])
+        self.animation_list.append([self.image2.get_image((0,0), 7.2, 31, 34,4)])
 
         #object rect
         self.image = self.animation_list[self.action][self.frame]
