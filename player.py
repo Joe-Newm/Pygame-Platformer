@@ -140,7 +140,7 @@ class Player(pygame.sprite.Sprite):
                 elif self.rect.right > screen_width - self.scroll_thresh or self.rect.left < self.scroll_thresh:
                     self.rect.x -= dx
                     screen_scroll = -dx
-                    print(screen_scroll)
+                    
             return screen_scroll
             
 
@@ -198,6 +198,8 @@ class Player(pygame.sprite.Sprite):
             self.action = 7
 
     def ai(self, screen, shoot, player1, bullet_group, bullet_image):
+        dx = 0
+        dy = 0
         look_up= 0
         gravity = 0
         shoot = 0
@@ -219,7 +221,20 @@ class Player(pygame.sprite.Sprite):
                 else:
                     ai_moving_right = False
                 ai_moving_left = not ai_moving_right
-                self.get_input(look_up, ai_moving_right, ai_moving_left, gravity, shoot, bullet_group, bullet_image)
+                if ai_moving_right:
+                    dx = self.vel_x
+                    self.flip = False
+                    self.direction = 1
+                    self.action = 1
+                    if shoot == True:
+                        self.action = 3
+                elif ai_moving_left:
+                    dx = -self.vel_x
+                    self.flip = True
+                    self.direction = -1
+                    self.action = 1
+                    if shoot == True:
+                        self.action = 3
                 self.move_counter += 1
                 # vision for ai
                 self.vision.center = (self.rect.centerx + 400 * self.direction, self.rect.centery)
@@ -233,6 +248,9 @@ class Player(pygame.sprite.Sprite):
                 self.idling_counter -= 1
                 if self.idling_counter <= 0:
                     self.idling = False
+            #update position
+            self.rect.x += dx
+            self.rect.y += dy
             
     def draw(self, display, gravity, shoot, moving_right, moving_left, look_up,screen_scroll, player1):
         self.animations()
@@ -297,8 +315,6 @@ class Bullet(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(player1,bullet_group, True, pygame.sprite.collide_mask):
                 if player1.alive:
                     player1.health -= 5
-                    print(player1.health)
-
                     player_flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
                     new_rect = player_flashing_surface.get_rect()
                     player1.mask = pygame.mask.from_surface(player_flashing_surface)
@@ -323,7 +339,17 @@ class Bullet(pygame.sprite.Sprite):
                         if enemy.alive:
                             self.kill()
                             enemy.health -= 15
-                            flashing_surface = enemy.animation_list[enemy.action][enemy.frame].copy()
+                            print("Enemy action:", enemy.action)
+                            print("Enemy animation list length:", len(enemy.animation_list))
+                            print("Enemy animation list length:", len(player1.animation_list))
+                            print(f"self.action= {enemy.action}")
+                            print(enemy.frame)
+                            try:
+                                flashing_surface = enemy.animation_list[enemy.action][enemy.frame].copy()
+                            except IndexError:
+                                print("Error: Animation index out of range")
+                                # Handle the error gracefully, such as by setting a default animation or skipping this frame
+                                continue  # Skip to the next iteration of the loop or take appropriate action
                             new_rect = flashing_surface.get_rect()
                             enemy.mask = pygame.mask.from_surface(flashing_surface)
                             for x in range(new_rect.width):

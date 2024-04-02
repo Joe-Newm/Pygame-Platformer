@@ -171,7 +171,6 @@ while running:
     # shoot
     bullet_group.draw(screen)
     player_bullet_group.draw(screen)
-    
     # flip() the display to put your work on screen
     pygame.display.update()
 
