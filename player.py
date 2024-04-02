@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,char_type, pos, image1, image2, speed):
         super().__init__()
         self.char_type = char_type
-        self.health = 100
+        self.health = 10000
         self.max_health = self.health
         self.jump = False
         self.in_air = True
@@ -42,8 +42,7 @@ class Player(pygame.sprite.Sprite):
         self.step_counter = 0
         # animation list: 0:idle, 1:run, 2:jump, 3:runshoot, 4:jumpshoot, 5:shootup, 6:idleshoot, 7:death
         self.action = 0
-        self.reverse_playback = False
-
+      
         # grab animations for animation list
         for animation in self.animation_steps1:
             temp_img_list = []
@@ -201,7 +200,6 @@ class Player(pygame.sprite.Sprite):
         dx = 0
         dy = 0
         look_up= 0
-        gravity = 0
         shoot = 0
         ai_moving_left = False
         ai_moving_right = False
@@ -315,7 +313,12 @@ class Bullet(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(player1,bullet_group, True, pygame.sprite.collide_mask):
                 if player1.alive:
                     player1.health -= 5
-                    player_flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
+                    try:
+                        player_flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
+                    except IndexError:
+                        print("Error: Animation index out of range for the player")
+                        # Handle the error
+                        player_flashing_surface = player1.animation_list[0][0].copy()
                     new_rect = player_flashing_surface.get_rect()
                     player1.mask = pygame.mask.from_surface(player_flashing_surface)
                     for x in range(new_rect.width):
@@ -334,22 +337,17 @@ class Bullet(pygame.sprite.Sprite):
             collision = pygame.sprite.groupcollide(enemy_group, player_bullet_group, False, pygame.sprite.collide_mask)
             if collision:
                 for enemy, bullet in collision.items():
-                        print(enemy)
+                        
                         # Iterate over each pixel of the image for flash effect
                         if enemy.alive:
                             self.kill()
                             enemy.health -= 15
-                            print("Enemy action:", enemy.action)
-                            print("Enemy animation list length:", len(enemy.animation_list))
-                            print("Enemy animation list length:", len(player1.animation_list))
-                            print(f"self.action= {enemy.action}")
-                            print(enemy.frame)
                             try:
                                 flashing_surface = enemy.animation_list[enemy.action][enemy.frame].copy()
                             except IndexError:
                                 print("Error: Animation index out of range")
-                                # Handle the error gracefully, such as by setting a default animation or skipping this frame
-                                continue  # Skip to the next iteration of the loop or take appropriate action
+                                # Handle the error
+                                continue  # Skip 
                             new_rect = flashing_surface.get_rect()
                             enemy.mask = pygame.mask.from_surface(flashing_surface)
                             for x in range(new_rect.width):
