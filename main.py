@@ -4,6 +4,7 @@ from pygame import mixer
 from player import *
 import sprites
 from player import Bullet
+from world import *
 
 # pygame setup
 pygame.init()
@@ -16,11 +17,14 @@ screen_height = int(screen_width * 0.8)
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
+
+
 # megaman sprite sheet load image
 sprite_sheet_image1 = pygame.image.load("sprites/player/megaman-sprite1.png").convert_alpha()
 sprite_sheet1 = sprites.SpriteSheet(sprite_sheet_image1)
 sprite_sheet_image2 = pygame.image.load("sprites/player/megaman-sprite2.png").convert_alpha()
 sprite_sheet2 = sprites.SpriteSheet(sprite_sheet_image2)
+
 # enemy sprite sheet and load image
 enemy_sheet_image1 = pygame.image.load("sprites/enemy/enemy-sprite1.png").convert_alpha()
 enemy_sheet1 = sprites.SpriteSheet(enemy_sheet_image1)
@@ -32,6 +36,10 @@ grass_sheet = pygame.image.load("sprites/map/grass.png").convert_alpha()
 grass_object = sprites.SpriteSheet(grass_sheet)
 grass_image = grass_object.get_image((0,0),0,30,30,4)
 
+# world object and data
+enemy_group = pygame.sprite.Group()
+world = World()
+player1, enemy_group = world.process_data(level_data, grass_image, sprite_sheet1, sprite_sheet2, enemy_sheet1, enemy_sheet2, enemy_group)
 
 # bullet png
 bullet_sheet = pygame.image.load("sprites/bullet/bullet.png").convert_alpha()
@@ -51,11 +59,7 @@ for i in range(num_joysticks):
     print(f"Joystick {i}: {joystick.get_name()}")
 
 # player object
-player1 = Player("player", (300,100), sprite_sheet1, sprite_sheet2, 7)
-enemy1 = Player("enemy", (1000, 600), enemy_sheet1, enemy_sheet2, 4)
 
-enemy_group = pygame.sprite.Group()
-enemy_group.add(enemy1)
 
 # move variables
 look_up = False
@@ -64,12 +68,9 @@ moving_right = False
 jump_check = False 
 shoot = False
 gravity = 0.75 
-grass_list = []
-sep = 0
-for square in range(0, 200):
-        grass_list.append(grass_image)
 
-flashing_surface = enemy1.image.copy()
+
+
 
 while running:
     # poll for events
@@ -152,36 +153,25 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((112, 217, 255))
-    # draw some grass
     
-    sep = 0
-    for grass in grass_list:
-        grass_rect = grass.get_rect()
-        grass_rect.x += player1.screen_scroll
-        grass_rect.midbottom = (sep,720)
-        screen.blit(grass, grass_rect)
-        sep +=120
-    
-        
     #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
-    player1.get_input(look_up, moving_right, moving_left, gravity, shoot, player_bullet_group, bullet_image)
+    screen_scroll = player1.get_input(look_up, moving_right, moving_left, gravity, shoot, player_bullet_group, bullet_image)
+
+    #draw world
+    world.draw(screen, screen_scroll)
+
+    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up, screen_scroll)
+    #add enemy to group
     for enemy in enemy_group:
-        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
+        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up,screen_scroll)
         enemy.ai(screen, shoot, player1, bullet_group, bullet_image)
-
-    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up)
-
+    bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
+    player_bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
 
     # shoot
-    
-    bullet_group.update(player1,enemy1,player_bullet_group, bullet_group, screen)
     bullet_group.draw(screen)
-    player_bullet_group.update(player1,enemy1,player_bullet_group, bullet_group, screen)
     player_bullet_group.draw(screen)
-
-
     
-
     # flip() the display to put your work on screen
     pygame.display.update()
 

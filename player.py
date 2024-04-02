@@ -89,6 +89,8 @@ class Player(pygame.sprite.Sprite):
                 self.shoot(bullet_group, bullet_image, look_up, moving_right,moving_left)
             elif self.in_air and shoot and moving_left:
                 self.action = 4
+                self.shoot(bullet_group, bullet_image, look_up,moving_right,moving_left)
+
             elif look_up:
                 self.action = 5
             elif shoot:
@@ -133,12 +135,13 @@ class Player(pygame.sprite.Sprite):
 
             # update scroll based on player position
             if self.char_type == "player":
-                if self.rect.right > screen_width - self.scroll_thresh or self.rect.left < self.scroll_thresh:
+                if self.alive == False:
+                    screen_scroll = 0
+                elif self.rect.right > screen_width - self.scroll_thresh or self.rect.left < self.scroll_thresh:
                     self.rect.x -= dx
-                    self.screen_scroll = -dx
-            
-                
-                
+                    screen_scroll = -dx
+                    print(screen_scroll)
+            return screen_scroll
             
 
     def shoot(self, player_bullet_group, bullet_image, look_up,moving_right, moving_left):
@@ -174,7 +177,6 @@ class Player(pygame.sprite.Sprite):
 
 
         # animates based on which animation is in animation_list
-        
         current_time = pygame.time.get_ticks()
         time_since_last_update = current_time - self.last_update
         frames_to_skip = time_since_last_update // self.animation_cooldown
@@ -184,7 +186,6 @@ class Player(pygame.sprite.Sprite):
         self.last_update += frames_to_skip * self.animation_cooldown
 
         # Ensure frame is within bounds for the current action
-        
         if self.frame >= len(self.animation_list[self.action]):
             self.frame = 0
 
@@ -233,7 +234,7 @@ class Player(pygame.sprite.Sprite):
                 if self.idling_counter <= 0:
                     self.idling = False
             
-    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up):
+    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up,screen_scroll):
         self.animations()
         display.blit(pygame.transform.flip(self.animation_list[self.action][self.frame], self.flip, False), self.rect)
 
@@ -258,6 +259,8 @@ class Player(pygame.sprite.Sprite):
 
         #check alive
         self.check_alive()
+        if self.char_type == "enemy":
+            self.rect.x += screen_scroll
         
 
 class Bullet(pygame.sprite.Sprite):
@@ -276,7 +279,7 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.up = False
 
-    def update(self, player1, enemy1,player_bullet_group, bullet_group, screen):
+    def update(self, player1, enemy_group,player_bullet_group, bullet_group, screen):
         if self.up:
             self.rect.centery -= self.speed
         else:
@@ -289,47 +292,46 @@ class Bullet(pygame.sprite.Sprite):
         
 
         #check collision with characters
-        if pygame.sprite.spritecollide(player1,bullet_group, False):
-            #pygame.draw.rect(screen, "red", player1.rect, 1)
+        collided_bullets = pygame.sprite.spritecollide(player1,bullet_group, False)
+        if collided_bullets:
             if pygame.sprite.spritecollide(player1,bullet_group, True, pygame.sprite.collide_mask):
                 if player1.alive:
                     player1.health -= 5
                     print(player1.health)
-                    
 
-                    flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
-                    new_rect = flashing_surface.get_rect()
-                    player1.mask = pygame.mask.from_surface(enemy1.animation_list[player1.action][player1.frame])
+                    player_flashing_surface = player1.animation_list[player1.action][player1.frame].copy()
+                    new_rect = player_flashing_surface.get_rect()
+                    player1.mask = pygame.mask.from_surface(player_flashing_surface)
                     for x in range(new_rect.width):
                         for y in range(new_rect.height):
                             # Check if the pixel is non-transparent in the mask
                             if player1.mask.get_at((x, y)):
                                 # Fills corresponding pixel with white
-                                flashing_surface.set_at((x, y), (255, 255, 255))
+                                player_flashing_surface.set_at((x, y), (255, 255, 255))
 
                     # Blit the the white surface on character to flash
-                    screen.blit(pygame.transform.flip(flashing_surface, player1.flip, False), player1.rect)
-                    
-                    
-                    
+                    screen.blit(pygame.transform.flip(player_flashing_surface, player1.flip, False), player1.rect)
                     
 
-        if pygame.sprite.spritecollide(enemy1,player_bullet_group, False):
-            if pygame.sprite.spritecollide(enemy1, player_bullet_group, False, pygame.sprite.collide_mask):
-                # Iterate over each pixel of the image for flash effect
-                if enemy1.alive:
-                    enemy1.health -= 15
-                    print(enemy1.health)
-                    self.kill()
-                    flashing_surface = enemy1.animation_list[enemy1.action][enemy1.frame].copy()
-                    new_rect = enemy1.animation_list[enemy1.action][enemy1.frame].get_rect()
-                    enemy1.mask = pygame.mask.from_surface(enemy1.animation_list[enemy1.action][enemy1.frame])
-                    for x in range(new_rect.width):
-                        for y in range(new_rect.height):
-                            # Check if the pixel is non-transparent in the mask
-                            if enemy1.mask.get_at((x, y)):
-                                # Fills corresponding pixel with white
-                                flashing_surface.set_at((x, y), (255, 255, 255))
+        collided_player_bullets = pygame.sprite.groupcollide(enemy_group,player_bullet_group, False, False)
+        if collided_player_bullets:
+            collision = pygame.sprite.groupcollide(enemy_group, player_bullet_group, False, pygame.sprite.collide_mask)
+            if collision:
+                for enemy, bullet in collision.items():
+                        print(enemy)
+                        # Iterate over each pixel of the image for flash effect
+                        if enemy.alive:
+                            self.kill()
+                            enemy.health -= 15
+                            flashing_surface = enemy.animation_list[enemy.action][enemy.frame].copy()
+                            new_rect = flashing_surface.get_rect()
+                            enemy.mask = pygame.mask.from_surface(flashing_surface)
+                            for x in range(new_rect.width):
+                                for y in range(new_rect.height):
+                                    # Check if the pixel is non-transparent in the mask
+                                    if enemy.mask.get_at((x, y)):
+                                        # Fills corresponding pixel with white
+                                        flashing_surface.set_at((x, y), (255, 255, 255))
 
-                    # Blit the the white surface on character to flash
-                    screen.blit(pygame.transform.flip(flashing_surface, enemy1.flip, False), enemy1.rect)
+                            # Blit the the white surface on character to flash
+                            screen.blit(pygame.transform.flip(flashing_surface, enemy.flip, False), enemy.rect)
