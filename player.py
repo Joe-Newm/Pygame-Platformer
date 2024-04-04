@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,char_type, pos, image1, image2, speed):
         super().__init__()
         self.char_type = char_type
-        self.health = 100
+        self.health = 10000
         self.max_health = self.health
         self.jump = False
         self.in_air = True
