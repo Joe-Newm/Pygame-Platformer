@@ -116,16 +116,20 @@ class Player(pygame.sprite.Sprite):
                 
             
             if self.jump == True and self.jump_lock == False:
-                self.action = 2  
+                self.action = 2
                 self.vel_y -= 3
                 self.in_air = True
-                if self.vel_y < -15:
+                if self.vel_y < -18:
                     self.vel_y += gravity
                     self.jump = False
+            else:
+                self.jump = False
+                if self.in_air == True and self.jump == False:
                     self.jump_lock = True
+            print(self.jump)
+            print(f"jumplock{self.jump_lock}")
                     
-            elif self.jump == False and self.jump_lock == False:
-                self.jump_lock = True
+                
 
             if self.in_air:
                 if shoot and moving_left:
@@ -140,14 +144,11 @@ class Player(pygame.sprite.Sprite):
                     self.action = 2
             if self.in_air and self.jump == False:
                 self.vel_y += gravity
-            if not self.in_air:
-                self.jump_lock = False
-
-                    
+            
+ 
             #update gravity   
-            if self.vel_y > 15:
-                self.vel_y = 15
-            dy += self.vel_y
+            # if self.vel_y > 15:
+            #     self.vel_y = 0
             print(self.vel_y)
             
             # check collision with floor
@@ -155,8 +156,9 @@ class Player(pygame.sprite.Sprite):
                 self.vel_y = 0
                 dy = 620 - self.rect.bottom
                 self.in_air = False
-                self.jump = False
+                self.jump_lock = False
                 
+            dy += self.vel_y
             # update position
             self.rect.x += dx
             self.rect.y += dy
@@ -178,7 +180,6 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.centerx + 14, self.rect.centery -60, self.direction, bullet_image, True)
             elif look_up and self.direction == -1 and not moving_left:
                 bullet = Bullet(self.rect.centerx -14, self.rect.centery -60, self.direction, bullet_image, True)
-
             elif self.direction == 1:
                 bullet = Bullet(self.rect.right +15,self.rect.centery -2,self.direction, bullet_image, False)
             else:
