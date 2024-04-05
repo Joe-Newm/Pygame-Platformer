@@ -224,8 +224,8 @@ class Player(pygame.sprite.Sprite):
     def ai(self, gravity, moving_right, moving_left, shoot, player1, bullet_group, bullet_image):
         dx = 0
         dy = 0
-        look_up= 0
-        shoot = 0
+        ai_look_up= 0
+        ai_shoot = False
         ai_moving_left = False
         ai_moving_right = False
         if self.alive and player1.alive:
@@ -234,7 +234,8 @@ class Player(pygame.sprite.Sprite):
                 self.idling_counter = 100
                 self.action = 0
             if pygame.Rect.colliderect(self.vision, player1.rect):
-                self.shoot(bullet_group, bullet_image, look_up, ai_moving_right, ai_moving_left)
+                ai_shoot = True
+                self.shoot(bullet_group, bullet_image, ai_look_up, ai_moving_right, ai_moving_left)
                 self.action = 6
                 self.idling = True
             if self.idling == False:
@@ -249,19 +250,18 @@ class Player(pygame.sprite.Sprite):
                     self.flip = False
                     self.direction = 1
                     self.action = 1
-                    if shoot == True:
+                    if ai_shoot == True:
                         self.action = 3
                 elif ai_moving_left:
                     dx = -self.vel_x
                     self.flip = True
                     self.direction = -1
                     self.action = 1
-                    if shoot == True:
+                    if ai_shoot == True:
                         self.action = 3
                 self.move_counter += 1
                 # vision for ai
                 self.vision.center = (self.rect.centerx + 400 * self.direction, self.rect.centery)
-                #pygame.draw.rect(screen, "red", self.vision)
                 
                 if self.move_counter > 50:
                     self.direction *= -1
@@ -278,7 +278,7 @@ class Player(pygame.sprite.Sprite):
             dy += self.ai_vel_y
             # check collision with floor
             if self.rect.bottom + dy > 620:
-                if shoot == False and moving_right == False and moving_left == False and look_up == False:
+                if ai_shoot == False and ai_moving_right == False and ai_moving_left == False and ai_look_up == False:
                     self.action = 0
                 dy = 620 - self.rect.bottom
                 self.in_air = False

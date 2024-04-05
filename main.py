@@ -18,7 +18,6 @@ screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 running = True
 
-
 # megaman sprite sheet load image
 sprite_sheet_image1 = pygame.image.load("sprites/player/megaman-sprite1.png").convert_alpha()
 sprite_sheet1 = sprites.SpriteSheet(sprite_sheet_image1)
@@ -58,9 +57,6 @@ for i in range(num_joysticks):
     joysticks.append(joystick)
     print(f"Joystick {i}: {joystick.get_name()}")
 
-# player object
-
-
 # move variables
 look_up = False
 moving_left = False
@@ -68,10 +64,6 @@ moving_right = False
 jump_check = False 
 shoot = False
 gravity = 1
-
-
-
-
 
 while running:
     # poll for events
@@ -165,7 +157,7 @@ while running:
     #add enemy to group
     for enemy in enemy_group:
         enemy.draw(screen, screen_scroll, player1)
-        enemy.ai( gravity, moving_right, moving_left, shoot, player1, bullet_group, bullet_image)
+        enemy.ai(gravity, moving_right, moving_left, shoot, player1, bullet_group, bullet_image)
     bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
     player_bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
 
