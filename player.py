@@ -20,12 +20,14 @@ class Player(pygame.sprite.Sprite):
         self.flip = False
         self.flip_adj = False
         self.pos = pos
+        self.jump_lock = False
 
         # ai variables
         self.vision = pygame.Rect(0,0,800,20)
         self.move_counter = 0
         self.idling = False
         self.idling_counter = 0
+        self.ai_vel_y = 0
 
         #scroll variables
         self.scroll_thresh = 200
@@ -82,7 +84,7 @@ class Player(pygame.sprite.Sprite):
         if self.alive:
             dx = 0
             dy = 0
-
+            
             if look_up and shoot:
                 self.action = 5
                 self.shoot(bullet_group, bullet_image, look_up, moving_right,moving_left)
@@ -109,13 +111,22 @@ class Player(pygame.sprite.Sprite):
                 self.action = 1
                 if shoot == True:
                     self.action = 3
+            elif shoot == False and look_up == False:
+                self.action = 0
+                
             
-
-            if self.jump == True and self.in_air == False:
-                self.vel_y = -15
-                self.action = 2
-                self.jump = False
+            if self.jump == True and self.jump_lock == False:
+                self.action = 2  
+                self.vel_y -= 3
                 self.in_air = True
+                if self.vel_y < -15:
+                    self.vel_y += gravity
+                    self.jump = False
+                    self.jump_lock = True
+                    
+            elif self.jump == False and self.jump_lock == False:
+                self.jump_lock = True
+
             if self.in_air:
                 if shoot and moving_left:
                     self.action = 4
@@ -127,6 +138,24 @@ class Player(pygame.sprite.Sprite):
                     self.action = 4
                 else:
                     self.action = 2
+            if self.in_air and self.jump == False:
+                self.vel_y += gravity
+            if not self.in_air:
+                self.jump_lock = False
+
+                    
+            #update gravity   
+            if self.vel_y > 15:
+                self.vel_y = 15
+            dy += self.vel_y
+            print(self.vel_y)
+            
+            # check collision with floor
+            if self.rect.bottom + dy > 620:
+                self.vel_y = 0
+                dy = 620 - self.rect.bottom
+                self.in_air = False
+                self.jump = False
                 
             # update position
             self.rect.x += dx
@@ -138,8 +167,7 @@ class Player(pygame.sprite.Sprite):
                     screen_scroll = 0
                 elif self.rect.right > screen_width - self.scroll_thresh or self.rect.left < self.scroll_thresh:
                     self.rect.x -= dx
-                    screen_scroll = -dx
-                    
+                    screen_scroll = -dx   
             return screen_scroll
             
 
@@ -196,7 +224,7 @@ class Player(pygame.sprite.Sprite):
             self.kill()
             self.action = 7
 
-    def ai(self, screen, shoot, player1, bullet_group, bullet_image):
+    def ai(self, gravity, moving_right, moving_left, shoot, player1, bullet_group, bullet_image):
         dx = 0
         dy = 0
         look_up= 0
@@ -238,7 +266,6 @@ class Player(pygame.sprite.Sprite):
                 self.vision.center = (self.rect.centerx + 400 * self.direction, self.rect.centery)
                 #pygame.draw.rect(screen, "red", self.vision)
                 
-
                 if self.move_counter > 50:
                     self.direction *= -1
                     self.move_counter = 0
@@ -246,32 +273,25 @@ class Player(pygame.sprite.Sprite):
                 self.idling_counter -= 1
                 if self.idling_counter <= 0:
                     self.idling = False
+            #update gravity
+            
+            self.ai_vel_y += gravity
+            if self.vel_y > 15:
+                self.vel_y = 15
+            dy += self.ai_vel_y
+            # check collision with floor
+            if self.rect.bottom + dy > 620:
+                if shoot == False and moving_right == False and moving_left == False and look_up == False:
+                    self.action = 0
+                dy = 620 - self.rect.bottom
+                self.in_air = False
             #update position
             self.rect.x += dx
             self.rect.y += dy
             
-    def draw(self, display, gravity, shoot, moving_right, moving_left, look_up,screen_scroll, player1):
+    def draw(self, display, screen_scroll, player1):
         self.animations()
         display.blit(pygame.transform.flip(self.animation_list[self.action][self.frame], self.flip, False), self.rect)
-
-        #update gravity
-        dx = 0
-        dy = 0
-        self.vel_y += gravity
-        if self.vel_y > 15:
-            self.vel_y
-        dy += self.vel_y
-
-        # check collision with floor
-        if self.rect.bottom + dy > 620:
-            if shoot == False and moving_right == False and moving_left == False and look_up == False:
-                self.action = 0
-            dy = 620 - self.rect.bottom
-            self.in_air = False
-
-        # update position
-        self.rect.x += dx
-        self.rect.y += dy
 
         #check alive
         self.check_alive()

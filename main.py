@@ -67,7 +67,8 @@ moving_left = False
 moving_right = False
 jump_check = False 
 shoot = False
-gravity = 0.75 
+gravity = 1 
+
 
 
 
@@ -106,6 +107,7 @@ while running:
                 moving_left = False
             if event.key == pygame.K_SPACE:
                 player1.jump = False
+                jump_lock = True
             if event.key == pygame.K_x:
                 shoot = False
                 
@@ -154,17 +156,16 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((112, 217, 255))
     
-    #pygame.draw.line(screen, "black", (0, 600), (screen_width, 600), 3)
     screen_scroll = player1.get_input(look_up, moving_right, moving_left, gravity, shoot, player_bullet_group, bullet_image)
 
     #draw world
     world.draw(screen, screen_scroll, player1)
 
-    player1.draw(screen, gravity, shoot, moving_right, moving_left, look_up, screen_scroll,player1)
+    player1.draw(screen, screen_scroll,player1)
     #add enemy to group
     for enemy in enemy_group:
-        enemy.draw(screen, gravity, shoot, moving_right, moving_left, look_up,screen_scroll, player1)
-        enemy.ai(screen, shoot, player1, bullet_group, bullet_image)
+        enemy.draw(screen, screen_scroll, player1)
+        enemy.ai( gravity, moving_right, moving_left, shoot, player1, bullet_group, bullet_image)
     bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
     player_bullet_group.update(player1,enemy_group,player_bullet_group, bullet_group, screen)
 
