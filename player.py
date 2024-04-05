@@ -79,7 +79,6 @@ class Player(pygame.sprite.Sprite):
         
     def get_input(self,look_up, moving_right, moving_left, gravity, shoot, bullet_group, bullet_image):
         screen_width = 1280
-        screen_height = int(screen_width * 0.8)
         screen_scroll = 0
         if self.alive:
             dx = 0
@@ -114,23 +113,20 @@ class Player(pygame.sprite.Sprite):
             elif shoot == False and look_up == False:
                 self.action = 0
                 
-            
             if self.jump == True and self.jump_lock == False:
                 self.action = 2
-                self.vel_y -= 3
+                self.vel_y -= 2
                 self.in_air = True
                 if self.vel_y < -18:
-                    self.vel_y += gravity
+                    self.vel_y = -18
                     self.jump = False
             else:
                 self.jump = False
-                if self.in_air == True and self.jump == False:
-                    self.jump_lock = True
+            if self.in_air == True and self.jump == False:
+                self.jump_lock = True
             print(self.jump)
             print(f"jumplock{self.jump_lock}")
                     
-                
-
             if self.in_air:
                 if shoot and moving_left:
                     self.action = 4

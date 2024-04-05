@@ -67,7 +67,7 @@ moving_left = False
 moving_right = False
 jump_check = False 
 shoot = False
-gravity = 1 
+gravity = 1
 
 
 
